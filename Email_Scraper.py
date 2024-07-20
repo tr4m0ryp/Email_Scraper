@@ -9,6 +9,15 @@ import os
 def clear_terminal():
     os.system('cls' if os.name == 'nt' else 'clear')
 
+# Function to clean up the email addresses
+def clean_email(email):
+    # Regular expression to identify the valid end of an email address
+    match = re.search(r'@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', email)
+    if match:
+        end_index = match.end()
+        return email[:end_index]
+    return email
+
 # Function to get the email address using web scraping
 def get_company_email(company_name, search_engines):
     headers = {
@@ -37,11 +46,12 @@ def get_company_email(company_name, search_engines):
                 
                 # Regular expression to find email addresses
                 email_regex = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-                email = re.findall(email_regex, soup.text)
+                emails = re.findall(email_regex, soup.text)
                 
-                if email:
-                    print(f"Email found: {email[0]}")
-                    return email[0]
+                if emails:
+                    cleaned_email = clean_email(emails[0])
+                    print(f"Email found: {cleaned_email}")
+                    return cleaned_email
                 print("No email found in search results.")
             elif response.status_code == 429:
                 print("Rate limit exceeded. Switching search engine...")
@@ -61,11 +71,11 @@ def get_company_email(company_name, search_engines):
 
 # Main function to read company names from Excel and write results back to Excel
 def main():
-    input_file = 'C:\\Users\\######\\Downloads\\Map6.xlsx' # Your own path to the file
-    output_file = 'C:\\Users\\######\\Downloads\\Hotel_with_emails.xlsx' 
+    input_file = 'C:\\Users\\######\\Downloads\\Map6.xlsx'  # Your own path to the file
+    output_file = 'C:\\Users\\######\\Downloads\\Hotel_with_emails.xlsx'
     
     search_engines = [
-        "https://www.google.com/search?q=Hotel+Belgie+{}+email", # Your own Search
+        "https://www.google.com/search?q=Hotel+Belgie+{}+email",
         "https://www.bing.com/search?q=Hotel+Belgie+{}+email",
         "https://duckduckgo.com/?q=Hotel+Belgie+{}+email"
     ]
